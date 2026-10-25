@@ -84,8 +84,8 @@ try {
     Copy-Item -LiteralPath $verificationFile -Destination $payloadDocs
   }
   foreach ($manualName in @(
-    'GuGu-AI-Visual-Studio-3.0.0-LAN-Deployment-Guide-CN.pdf',
-    'GuGu-3.0.0-Computer-Name-Shared-Folder-Deployment-Guide-CN.pdf'
+    "GuGu-AI-Visual-Studio-$appVersion-LAN-Deployment-Guide-CN.pdf",
+    "GuGu-$appVersion-Computer-Name-Shared-Folder-Deployment-Guide-CN.pdf"
   )) {
     $manualPath = Join-Path $projectDir "output\pdf\$manualName"
     if (Test-Path -LiteralPath $manualPath) {

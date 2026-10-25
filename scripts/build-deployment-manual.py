@@ -23,7 +23,7 @@ from pypdf import PdfReader, PdfWriter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "output" / "pdf" / "GuGu-AI-Visual-Studio-3.0.0-LAN-Deployment-Guide-CN.pdf"
+OUTPUT = ROOT / "output" / "pdf" / "GuGu-AI-Visual-Studio-0.1.0-LAN-Deployment-Guide-CN.pdf"
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
 
 FONT_REGULAR = Path(r"C:\Windows\Fonts\msyh.ttc")
@@ -60,7 +60,7 @@ class ManualDocTemplate(BaseDocTemplate):
             rightMargin=18 * mm,
             topMargin=20 * mm,
             bottomMargin=18 * mm,
-            title="GuGu AI Visual Studio 3.0.0 局域网部署保姆级手册",
+            title="GuGu AI Visual Studio 0.1.0 局域网部署保姆级手册",
             author="GuGu AI Visual Studio",
             subject="公司局域网团队版部署、使用、备份与排障",
         )
@@ -100,7 +100,7 @@ def draw_page(canvas, doc):
         canvas.line(18 * mm, PAGE_H - 13 * mm, PAGE_W - 18 * mm, PAGE_H - 13 * mm)
         canvas.setFont("CN", 8)
         canvas.setFillColor(MUTED)
-        canvas.drawString(18 * mm, PAGE_H - 10 * mm, "GuGu AI Visual Studio 3.0.0 · 局域网团队版部署手册")
+        canvas.drawString(18 * mm, PAGE_H - 10 * mm, "GuGu AI Visual Studio 0.1.0 · 局域网团队版部署手册")
         canvas.drawRightString(PAGE_W - 18 * mm, 10 * mm, f"第 {doc.page} 页")
     canvas.restoreState()
 
@@ -330,7 +330,7 @@ story = []
 # Cover
 story += [
     Spacer(1, 34 * mm),
-    P("GUGU AI VISUAL STUDIO · 3.0.0", "cover_kicker"),
+    P("GUGU AI VISUAL STUDIO · 0.1.0", "cover_kicker"),
     P("公司局域网部署<br/>保姆级操作手册", "cover_title"),
     P("从一台电脑启动，到全公司同事注册登录、管理员审核、积分管理、备份升级。无需编程基础，按步骤操作即可。", "cover_subtitle"),
     Spacer(1, 8 * mm),
@@ -493,7 +493,7 @@ story += [
     H2("4.1 启动成功的三个标志"),
     *bullets([
         "浏览器能看到登录页面，而不是“无法访问此网站”。",
-        "登录后页脚显示 GuGu AI Visual Studio v3.0.0。",
+        "登录后页脚显示 GuGu AI Visual Studio v0.1.0。",
         "右上角能看到用户名、可用积分、个人中心；管理员还能看到管理后台和接口设置。",
     ]),
     PageBreak(),
@@ -810,7 +810,7 @@ story += [
     Spacer(1, 8 * mm),
     HRFlowable(width="100%", thickness=0.7, color=LINE),
     Spacer(1, 4 * mm),
-    P("手册对应 GuGu AI Visual Studio 3.0.0 局域网团队版。项目内验证记录：docs/verification-3.0.0.md。", "small"),
+    P("手册对应 GuGu AI Visual Studio 0.1.0 局域网团队版。项目内验证记录：docs/verification-0.1.0.md。", "small"),
 ]
 
 
@@ -822,7 +822,7 @@ reader = PdfReader(str(OUTPUT))
 writer = PdfWriter()
 writer.clone_document_from_reader(reader)
 writer.add_metadata({
-    "/Title": "GuGu AI Visual Studio 3.0.0 局域网部署保姆级手册",
+    "/Title": "GuGu AI Visual Studio 0.1.0 局域网部署保姆级手册",
     "/Author": "GuGu AI Visual Studio",
     "/Subject": "公司局域网团队版部署、使用、备份与排障",
 })

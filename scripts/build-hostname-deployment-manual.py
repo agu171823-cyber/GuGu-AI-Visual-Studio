@@ -23,7 +23,7 @@ from pypdf import PdfReader, PdfWriter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "output" / "pdf" / "GuGu-3.0.0-Computer-Name-Shared-Folder-Deployment-Guide-CN.pdf"
+OUTPUT = ROOT / "output" / "pdf" / "GuGu-0.1.0-Computer-Name-Shared-Folder-Deployment-Guide-CN.pdf"
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
 
 FONT = Path(r"C:\Windows\Fonts\msyh.ttc")
@@ -58,7 +58,7 @@ class Manual(BaseDocTemplate):
             rightMargin=18 * mm,
             topMargin=20 * mm,
             bottomMargin=18 * mm,
-            title="GuGu AI Visual Studio 3.0.0 电脑名称访问简化部署手册",
+            title="GuGu AI Visual Studio 0.1.0 电脑名称访问简化部署手册",
             author="GuGu AI Visual Studio",
             subject="通过电脑名称和共享文件夹入口部署 GuGu AI Visual Studio",
         )
@@ -86,7 +86,7 @@ def page_decor(canvas, doc):
         canvas.line(18 * mm, PAGE_H - 13 * mm, PAGE_W - 18 * mm, PAGE_H - 13 * mm)
         canvas.setFont("CN2", 8)
         canvas.setFillColor(MUTED)
-        canvas.drawString(18 * mm, PAGE_H - 10 * mm, "GuGu 3.0.0 · 电脑名称访问与共享入口部署手册")
+        canvas.drawString(18 * mm, PAGE_H - 10 * mm, "GuGu 0.1.0 · 电脑名称访问与共享入口部署手册")
         canvas.drawRightString(PAGE_W - 18 * mm, 10 * mm, f"第 {doc.page} 页")
     canvas.restoreState()
 
@@ -231,7 +231,7 @@ story = []
 # Cover
 story += [
     Spacer(1, 34 * mm),
-    p("GUGU AI VISUAL STUDIO · 3.0.0", "cover_kicker"),
+    p("GUGU AI VISUAL STUDIO · 0.1.0", "cover_kicker"),
     p("不需要知道服务器 IP<br/>电脑名称访问部署手册", "cover_title"),
     p("适用于：你和同事已经能通过共享文件互相访问，希望由你的电脑运行 GuGu，让同事从共享目录双击入口即可使用。", "cover_sub"),
     Spacer(1, 8 * mm),
@@ -240,7 +240,7 @@ cover = Table([
     [p("核心方式", "th"), p("你的电脑运行 GuGu，同事使用浏览器访问", "cover_cell")],
     [p("访问地址", "th"), p("http://你的电脑名称:8797", "cover_cell")],
     [p("共享目录", "th"), p("只放“打开 GuGu.url”，不放运行数据库", "cover_cell")],
-    [p("是否改代码", "th"), p("不需要，当前 3.0.0 已支持", "cover_cell")],
+    [p("是否改代码", "th"), p("不需要，当前 0.1.0 已支持", "cover_cell")],
     [p("预计用时", "th"), p("20 到 40 分钟", "cover_cell")],
 ], colWidths=[35 * mm, 117 * mm])
 cover.setStyle(TableStyle([
@@ -403,7 +403,7 @@ story += [
     callout("启动窗口必须保留", "关闭黑色启动窗口，所有同事都会断开。主机重启后也必须重新启动 quick-start.cmd。", "warn"),
     h2("6.1 主机自检"),
     *bullet_list([
-        "页脚显示 GuGu AI Visual Studio v3.0.0。",
+        "页脚显示 GuGu AI Visual Studio v0.1.0。",
         "右上角显示 admin、可用积分、个人中心、管理后台、接口设置。",
         "接口设置保存后，工作台显示相应渠道已配置。",
     ]),
@@ -415,10 +415,10 @@ story += [
     h1("7. 让一位同事先测试"),
     p("不要一开始就通知所有人。先找一位同事，在同一公司网络中完成以下测试。"),
     step(1, "打开健康检查", "同事在 Edge 或 Chrome 地址栏输入：http://design-pc:8797/api/health"),
-    step(2, "观察结果", "如果页面显示 ok、GuGu AI Visual Studio 和 3.0.0，说明电脑名称、网络和防火墙都正常。"),
+    step(2, "观察结果", "如果页面显示 ok、GuGu AI Visual Studio 和 0.1.0，说明电脑名称、网络和防火墙都正常。"),
     code([
         "正常示例：",
-        '{"ok":true,"app":"GuGu AI Visual Studio","version":"3.0.0"}',
+        '{"ok":true,"app":"GuGu AI Visual Studio","version":"0.1.0"}',
     ]),
     step(3, "打开登录页", "把地址末尾 /api/health 删除，打开 http://design-pc:8797。"),
     step(4, "测试注册", "点击“注册”，创建一个普通测试账号。注册完成后应提示等待管理员审核。"),
@@ -624,7 +624,7 @@ story += [
     p("管理员签字：________________________　日期：________________"),
     p("IT / 交接人签字：____________________　日期：________________"),
     Spacer(1, 8 * mm),
-    p("对应版本：GuGu AI Visual Studio 3.0.0 局域网团队版。", "small"),
+    p("对应版本：GuGu AI Visual Studio 0.1.0 局域网团队版。", "small"),
 ]
 
 
@@ -636,7 +636,7 @@ reader = PdfReader(str(OUTPUT))
 writer = PdfWriter()
 writer.clone_document_from_reader(reader)
 writer.add_metadata({
-    "/Title": "GuGu AI Visual Studio 3.0.0 电脑名称访问简化部署手册",
+    "/Title": "GuGu AI Visual Studio 0.1.0 电脑名称访问简化部署手册",
     "/Author": "GuGu AI Visual Studio",
     "/Subject": "通过电脑名称和共享文件夹入口部署 GuGu AI Visual Studio",
 })

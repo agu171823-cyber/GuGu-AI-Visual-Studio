@@ -4,7 +4,7 @@
 
 GuGu AI Visual Studio 是一个可部署在个人电脑或公司局域网的 AI 视觉创作工作台。你可以在同一个浏览器界面里完成图片生成、扩图、局部编辑、产品换背景、材质迁移、表情包、人像写真与角色模卡制作，也可以先用本地 3D 模型布光取景，再把截图交给 AI 继续创作。
 
-当前版本：**3.0.0 · 局域网团队版**。支持个人使用，也支持多人注册、管理员审核、积分分配、任务排队与用户数据隔离。
+当前版本：**0.1.0 · 首个公开预览版**。支持个人使用，也支持多人注册、管理员审核、积分分配、任务排队与用户数据隔离。发布说明见 [v0.1.0](docs/releases/v0.1.0.md)。
 
 > **运行方式：本机 / 内网服务 + 浏览器界面 + 自备图片 API Key。**
 > 程序负责界面、工作流、项目和文件管理；AI 图片由配置的上游渠道生成。3D 预览与截图在浏览器本机完成。无需在本机部署图片模型或配置 CUDA；AI 生成需要联网，费用由上游供应商收取。
@@ -38,7 +38,7 @@ GuGu AI Visual Studio 是一个可部署在个人电脑或公司局域网的 AI 
 
 **Windows 便携包**
 
-如果仓库的 Releases 提供 `GuGu-AI-Visual-Studio-Portable-3.0.0-win-x64.zip`，下载后完整解压，双击根目录的：
+如果仓库的 Releases 提供 `GuGu-AI-Visual-Studio-Portable-0.1.0-win-x64.zip`，下载后完整解压，双击根目录的：
 
 ```text
 quick-start.cmd
@@ -358,7 +358,7 @@ npm run build:character
 
 角色模块构建更新 `public/character-studio/` 与 `server/character-studio.cjs`。发布源码供用户免安装运行时，需同时包含这些构建产物与本地静态资源。
 
-自动化测试使用模拟图片 / 接口，不验证真实供应商余额、权限、人物一致性或出图质量。版本集成验收范围见 [3.0.0 验证记录](docs/verification-3.0.0.md)，角色模块说明见 [模块 README](modules/character-studio/README.md)。
+自动化测试使用模拟图片 / 接口，不验证真实供应商余额、权限、人物一致性或出图质量。本次公开版本检查见 [0.1.0 验证记录](docs/verification-0.1.0.md)。此前内部迭代记录保留原编号，见 [3.0.0 历史验证记录](docs/verification-3.0.0.md)；角色模块说明见 [模块 README](modules/character-studio/README.md)。
 
 ### 制作 Windows 便携包
 

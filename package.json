@@ -1,6 +1,6 @@
 {
   "name": "gugu-ai-visual-studio",
-  "version": "3.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "GuGu AI Visual Studio - LAN team workspace for AI image creation, editing, portraits, characters, and 3D staging",
   "type": "commonjs",
