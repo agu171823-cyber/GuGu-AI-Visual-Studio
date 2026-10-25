@@ -1,0 +1,20 @@
+.env
+.env.*
+!.env.example
+config/settings.json
+data/
+output/
+node_modules/
+.cache/
+tmp/
+release/
+runtime/
+*.log
+.DS_Store
+Thumbs.db
+
+# Keep local verification screenshots and unverified portrait samples private.
+/docs/*.png
+/docs/*.jpg
+/docs/*.jpeg
+/public/assets/portrait-style-preview-atlas.png

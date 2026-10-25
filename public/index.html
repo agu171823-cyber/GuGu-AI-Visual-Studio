@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b16">
+  <meta name="description" content="GuGu AI Visual Studio 本地 AI 图片生成与编辑、3D 模型取景、Q 版表情包与成年人艺术写真工作台">
+  <title>GuGu AI Visual Studio</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css?v=35">
+  <link rel="stylesheet" href="/theme-aurora.css?v=15">
+  <link rel="stylesheet" href="/model-3d-workspace.css?v=1">
+  <link rel="stylesheet" href="/portrait-creation-studio.css?v=3">
+  <link rel="stylesheet" href="/theme-tech.css?v=2.9.3">
+  <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/jsm/"}}</script>
+  <script type="module" src="/model-preview.js?v=1"></script>
+  <script src="/product-background.js?v=1" defer></script>
+  <script src="/material-transfer.js?v=1" defer></script>
+  <script src="/sticker-pack.js?v=2" defer></script>
+  <script src="/image-generation.js?v=1" defer></script>
+  <script src="/model-3d-utils.js?v=1" defer></script>
+  <script src="/model-3d-workspace.js?v=4" defer></script>
+  <script src="/app.js?v=35" defer></script>
+</head>
+<body>
+  <div class="team-auth-overlay" id="authOverlay">
+    <section class="team-auth-card" aria-labelledby="authTitle">
+      <div class="team-auth-brand"><span class="brand-mark">G</span><div><strong>GuGu AI Visual Studio</strong><small>局域网团队版</small></div></div>
+      <h1 id="authTitle">登录工作台</h1>
+      <p id="authIntro">使用管理员已审核的团队账号登录。</p>
+      <div class="team-auth-tabs"><button class="active" type="button" data-auth-mode="login">登录</button><button type="button" data-auth-mode="register">注册</button></div>
+      <form id="authForm" class="team-auth-form">
+        <label><span>用户名</span><input name="username" autocomplete="username" minlength="3" maxlength="32" required></label>
+        <label><span>密码</span><input name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+        <button class="primary-button" type="submit" id="authSubmit">登录</button>
+        <p class="team-auth-message" id="authMessage" role="status"></p>
+      </form>
+      <small>注册后需等待管理员审核并分配积分。</small>
+    </section>
+  </div>
+
+  <div class="app-shell" id="appShell" hidden>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="GuGu AI Visual Studio 首页">
+        <span class="brand-mark">G</span>
+        <span><strong>GuGu AI Visual Studio</strong><small>古古AI视觉工作台</small></span>
+      </a>
+      <nav class="mode-switch" aria-label="编辑模式">
+        <button class="mode-button" data-mode="imageGenerate">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>图片生成</span>
+        </button>
+        <button class="mode-button active" data-mode="expand">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>图片扩展</span>
+        </button>
+        <button class="mode-button" data-mode="precise">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>精确图片编辑</span>
+        </button>
+        <button class="mode-button" data-mode="productBackground">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>产品换背景</span>
+        </button>
+        <button class="mode-button" data-mode="materialTransfer">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>材质迁移</span>
+        </button>
+        <button class="mode-button" data-mode="stickerPack">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>Q版表情包大师</span>
+        </button>
+        <button class="mode-button" data-mode="portraitStudio">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>人像创作工作室</span>
+        </button>
+        <button class="mode-button" data-mode="model3d">
+          <span class="mode-icon" aria-hidden="true"></span>
+          <span>3D模型预览</span>
+        </button>
+      </nav>
+      <div class="header-actions">
+        <span class="provider-badge" id="providerBadge"><i></i><span>检查接口…</span></span>
+        <button class="soft-button" id="historyButton" type="button">历史</button>
+        <button class="soft-button" id="installButton" type="button" hidden>安装应用</button>
+        <button class="primary-small" id="settingsButton" type="button">接口设置</button>
+        <div class="team-user-badge" id="userBadge">
+          <span><strong id="userBadgeName"></strong><small id="userBadgeBalance"></small></span>
+          <button class="soft-button" id="accountButton" type="button">个人中心</button>
+          <button class="soft-button" id="adminButton" type="button" hidden>管理后台</button>
+          <button class="soft-button" id="logoutButton" type="button">退出</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="portrait-creation-hub" id="portraitCreationHub" aria-label="人像创作工作室" hidden>
+      <div class="portrait-creation-heading">
+        <div><span class="eyebrow">PORTRAIT CREATION</span><h1>人像创作工作室</h1><p>选择想做的内容，人物与作品都在这里继续使用。</p></div>
+        <span class="portrait-creation-local">本机保存 · 两种图片渠道</span>
+      </div>
+      <nav class="portrait-purpose-nav" aria-label="人像制作内容">
+        <button type="button" data-studio-purpose="portrait" aria-pressed="true"><strong>拍写真</strong><small>风格照片与四张系列</small></button>
+        <button type="button" data-studio-purpose="model-card" aria-pressed="false"><strong>做模卡</strong><small>标准视图与展示板</small></button>
+        <button type="button" data-studio-purpose="assets" aria-pressed="false"><strong>角色素材</strong><small>表情、换装与动作</small></button>
+      </nav>
+      <div class="portrait-person-row" id="studioPersonRow">
+        <label for="studioPersonSelect"><strong>人物来源</strong><small>可直接上传照片，也可继续已有角色</small></label>
+        <select id="studioPersonSelect" aria-label="选择已确认人物"><option value="">直接上传照片</option></select>
+        <button type="button" class="soft-button" id="studioUsePersonButton">使用这个人物拍写真</button>
+        <button type="button" class="soft-button" id="studioSavePortraitButton" hidden>保存成片到人物</button>
+      </div>
+      <details class="portrait-creation-library" id="studioLibrary">
+        <summary>我的写真作品 <span id="studioLibraryCount"></span></summary>
+        <div class="portrait-creation-library-grid" id="studioLibraryGrid"><p>正在读取本机作品…</p></div>
+      </details>
+    </section>
+
+    <div class="step-strip" aria-label="操作步骤">
+      <div class="step active" data-step="1"><b>01</b><span>上传图片</span></div>
+      <span class="step-line"></span>
+      <div class="step" data-step="2"><b>02</b><span>编辑设置</span></div>
+      <span class="step-line"></span>
+      <div class="step" data-step="3"><b>03</b><span>生成图片</span></div>
+      <span class="step-line"></span>
+      <div class="step" data-step="4"><b>04</b><span>对比下载</span></div>
+    </div>
+
+    <section id="characterStudioWorkspace" aria-label="人物模卡与角色素材" hidden><div id="characterStudioRoot"></div></section>
+    <section class="model3d-workspace" id="model3dWorkspace" hidden>
+      <header class="model3d-hero">
+        <div>
+          <span class="eyebrow">本地 3D 取景工作台</span>
+          <h1>3D 模型预览</h1>
+          <p>载入模型、搭建灯光与场景，截取可继续用于图片生成的结构参考图。</p>
+        </div>
+        <span class="model3d-local-badge">本机渲染 · 不消耗接口额度</span>
+      </header>
+      <div class="model3d-flow" aria-label="3D 模型预览操作步骤">
+        <span><b>1</b>载入模型</span><i></i><span><b>2</b>布景取景</span><i></i><span><b>3</b>截图应用</span>
+      </div>
+
+      <div class="model3d-landing" id="model3dLanding">
+        <div class="model3d-drop-zone" id="model3dDropZone" tabindex="0" role="button" aria-label="选择或拖入 3D 模型">
+          <input id="model3dInput" type="file" accept=".glb,.gltf,.obj,.fbx,.stl" hidden>
+          <div class="model3d-drop-content">
+            <div class="model3d-upload-orbit"><span>⬡</span></div>
+            <h2>把 3D 模型拖到这里</h2>
+            <p>适合商品、角色、装置、建筑和结构模型。GLB 最稳定；GLTF、OBJ、FBX 的外部贴图需内嵌后使用。</p>
+            <div class="model3d-format-list"><span>GLB</span><span>GLTF</span><span>OBJ</span><span>FBX</span><span>STL</span></div>
+            <button class="primary-button" id="model3dChooseButton" type="button">选择模型文件</button>
+            <small class="model3d-private-note">单文件最大 200MB · 模型不会上传到 147 图片或火山 Seedream</small>
+          </div>
+        </div>
+        <aside class="model3d-session-card">
+          <span class="eyebrow">场景保存</span>
+          <h2>继续上次取景</h2>
+          <p>模型、机位、材质、灯光和附加几何体会保存在浏览器本地。清理浏览器网站数据会一并移除。</p>
+          <div class="model3d-session-summary" id="model3dStoredSummary" hidden></div>
+          <ul class="model3d-feature-list">
+            <li>双相机自由观察与精准取景</li>
+            <li>五种渲染风格、HDR、投影与 AO</li>
+            <li>场景零件、三类灯光和材质通道</li>
+            <li>截图下载或发送到图片编辑模块</li>
+          </ul>
+          <div class="model3d-session-actions">
+            <button class="primary-button" id="model3dRestoreButton" type="button" hidden>继续上次场景</button>
+            <button class="soft-button" id="model3dClearButton" type="button" hidden>删除本机 3D 记录</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="model3d-editor" id="model3dEditor" hidden>
+        <header class="model3d-editor-head">
+          <div class="model3d-file-title">
+            <span class="eyebrow">STEP 2 · 布景取景</span>
+            <h2 id="model3dFileName">3D 模型</h2>
+            <p id="model3dFileMeta"></p>
+          </div>
+          <div class="model3d-head-actions">
+            <button class="soft-button" id="model3dReplaceButton" type="button">更换模型</button>
+            <button class="soft-button" id="model3dFullscreenButton" type="button">全屏工作台</button>
+          </div>
+        </header>
+
+        <div class="model3d-studio-grid">
+          <aside class="model3d-library">
+            <section class="model3d-panel-section">
+              <div class="model3d-panel-title"><span>添加几何体</span><small>点击添加</small></div>
+              <div class="model3d-add-grid">
+                <button type="button" data-m3d-action="add" data-kind="box"><span>□</span>立方体</button>
+                <button type="button" data-m3d-action="add" data-kind="sphere"><span>○</span>球体</button>
+                <button type="button" data-m3d-action="add" data-kind="cone"><span>△</span>圆锥</button>
+                <button type="button" data-m3d-action="add" data-kind="cylinder"><span>⬭</span>圆柱</button>
+                <button type="button" data-m3d-action="add" data-kind="plane"><span>▭</span>平面</button>
+                <button type="button" data-m3d-action="add" data-kind="torus"><span>◎</span>圆环</button>
+              </div>
+            </section>
+            <section class="model3d-panel-section">
+              <div class="model3d-panel-title"><span>添加灯光</span><small>可调颜色</small></div>
+              <div class="model3d-light-grid">
+                <button type="button" data-m3d-action="addlight" data-kind="directional"><span>☀</span>平行光</button>
+                <button type="button" data-m3d-action="addlight" data-kind="point"><span>●</span>点光</button>
+                <button type="button" data-m3d-action="addlight" data-kind="spot"><span>◗</span>聚光</button>
+              </div>
+            </section>
+            <section class="model3d-panel-section">
+              <div class="model3d-panel-title"><span>快捷键</span></div>
+              <div class="model3d-shortcuts">
+                <span><kbd>W</kbd> 移动　<kbd>E</kbd> 旋转</span>
+                <span><kbd>R</kbd> 缩放　<kbd>Del</kbd> 删除</span>
+                <span><kbd>Ctrl C</kbd> / <kbd>Ctrl V</kbd> 复制粘贴</span>
+                <span>左键旋转 · 右键平移 · 滚轮缩放</span>
+              </div>
+            </section>
+          </aside>
+
+          <div class="model3d-view-column">
+            <div class="model3d-stage" id="model3dStage">
+              <div class="model3d-mask" id="model3dMask"><div class="model3d-mask-window" id="model3dMaskWindow"></div></div>
+              <div class="model3d-loading" id="model3dLoading" hidden>正在准备 3D 场景…</div>
+              <div class="model3d-toolbar" role="toolbar" aria-label="3D 变换和显示工具">
+                <button class="active" type="button" data-m3d-action="gmode" data-mode="translate">移动</button>
+                <button type="button" data-m3d-action="gmode" data-mode="rotate">旋转</button>
+                <button type="button" data-m3d-action="gmode" data-mode="scale">缩放</button>
+                <span class="model3d-toolbar-separator"></span>
+                <button type="button" data-m3d-action="gspace">世界</button>
+                <button class="danger" type="button" data-m3d-action="delete">删除</button>
+                <span class="model3d-toolbar-separator"></span>
+                <button type="button" data-m3d-action="grid">地面</button>
+                <button type="button" data-m3d-action="background">背景</button>
+                <button class="active" type="button" data-m3d-action="shadow">投影</button>
+                <button type="button" data-m3d-action="ao">AO</button>
+              </div>
+            </div>
+            <footer class="model3d-view-footer">
+              <span id="model3dHint">取景视角 · 遮罩窗口内就是最终截图</span>
+              <div class="model3d-view-actions">
+                <button class="soft-button" id="model3dViewButton" type="button">视角：摄像机</button>
+                <button class="soft-button" id="model3dPanButton" type="button" aria-pressed="false">操作：旋转</button>
+                <button class="soft-button" id="model3dResetButton" type="button">重置视角</button>
+              </div>
+            </footer>
+          </div>
+
+          <aside class="model3d-inspector">
+            <section class="model3d-panel-section">
+              <div class="model3d-panel-title"><span>场景对象</span><small>点击选择</small></div>
+              <div class="model3d-outliner" id="model3dOutliner"></div>
+            </section>
+            <section class="model3d-panel-section">
+              <div class="model3d-panel-title"><span>属性</span><small>随选择变化</small></div>
+              <div class="model3d-properties" id="model3dProps"><p class="m3d-empty-note">选择模型、零件或灯光后可调整属性。</p></div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="model3d-settings-strip">
+          <label class="model3d-field"><span>渲染风格</span><select id="model3dRenderMode"></select></label>
+          <label class="model3d-field"><span>焦段 <em id="model3dFovLabel">≈38mm</em></span><input id="model3dFov" type="range" min="10" max="90" step="1" value="35"></label>
+          <label class="model3d-field"><span>取景比例</span><select id="model3dRatio"></select></label>
+          <label class="model3d-field"><span>遮罩浓度</span><input id="model3dMaskAlpha" type="range" min="0" max="90" step="5" value="60"></label>
+          <label class="model3d-field"><span>环境强度</span><input id="model3dEnvironment" type="range" min="0" max="300" step="5" value="100"></label>
+          <label class="model3d-field"><span>环境颜色</span><input id="model3dBackgroundColor" type="color" value="#f0f1f5"></label>
+          <label class="model3d-field"><span>AO 宽度</span><input id="model3dAoRadius" type="range" min="0" max="100" step="5" value="50"></label>
+        </div>
+        <footer class="model3d-editor-actions">
+          <button class="soft-button" id="model3dSaveCloseButton" type="button">保存并关闭</button>
+          <button class="model3d-capture-main" id="model3dCaptureButton" type="button"><span>截取当前画面</span><small>隐藏辅助线并按所选比例输出 PNG</small></button>
+        </footer>
+      </div>
+
+      <section class="model3d-capture-card" id="model3dCaptureCard" hidden>
+        <header class="model3d-capture-head">
+          <div><span class="eyebrow">STEP 3 · 截图应用</span><h2>3D 取景完成</h2><p id="model3dCaptureMeta"></p></div>
+          <div class="model3d-capture-actions">
+            <button class="soft-button" id="model3dSendGenerateButton" type="button">用作图片生成参考</button>
+            <button class="soft-button" id="model3dSendPreciseButton" type="button">发送到精确编辑</button>
+            <button class="soft-button" id="model3dSendMaterialButton" type="button">用作材质迁移结构母版</button>
+            <a class="primary-small" id="model3dDownloadButton" href="#" download>下载 PNG</a>
+          </div>
+        </header>
+        <div class="model3d-capture-preview"><img id="model3dCaptureImage" alt="3D 取景截图"></div>
+      </section>
+    </section>
+
+    <main class="workspace">
+      <section class="editor-card">
+        <div class="card-heading">
+          <div>
+            <span class="eyebrow" id="editorEyebrow">STEP 1 · 上传图片</span>
+            <h1 id="editorTitle">选择一张需要扩展的图片</h1>
+          </div>
+          <div class="file-meta" id="fileMeta" hidden></div>
+        </div>
+
+        <div class="upload-zone" id="uploadZone" tabindex="0" role="button" aria-label="上传图片">
+          <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,image/heic,image/heif" hidden>
+          <div class="upload-illustration"><span>+</span></div>
+          <strong id="uploadModeLabel">上传用于图片扩展的原图</strong>
+          <p id="uploadModeHelp">拖入图片，或点击选择；推荐 PNG、JPEG、WebP，单张不超过 30MB</p>
+          <button class="primary-button" type="button" id="chooseImageButton">选择图片</button>
+        </div>
+
+        <div class="dual-image-uploader product-background-uploader product-background-only" id="productBackgroundUploader" hidden>
+          <input id="productImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          <input id="backgroundImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          <div class="product-upload-grid">
+            <button class="product-upload-card" id="productUploadCard" type="button">
+              <span class="product-upload-number">01</span>
+              <img id="productImagePreview" alt="产品图预览" hidden>
+              <span class="product-upload-placeholder" id="productUploadPlaceholder">＋</span>
+              <strong>产品图</strong>
+              <small id="productFileSummary">上传产品原图，保留外观、文字与材质</small>
+              <span class="product-upload-action">选择或更换图片</span>
+            </button>
+            <button class="product-upload-card" id="backgroundUploadCard" type="button">
+              <span class="product-upload-number">02</span>
+              <img id="backgroundImagePreview" alt="背景图预览" hidden>
+              <span class="product-upload-placeholder" id="backgroundUploadPlaceholder">＋</span>
+              <strong>背景图</strong>
+              <small id="backgroundFileSummary">上传目标场景，作为环境与光照依据</small>
+              <span class="product-upload-action">选择或更换图片</span>
+            </button>
+          </div>
+          <p class="product-upload-tip">产品始终作为图片 1，背景始终作为图片 2；一次编辑完成背景替换、接触阴影、反射与整体光影统一。</p>
+        </div>
+
+        <div class="dual-image-uploader material-transfer-uploader material-transfer-only" id="materialTransferUploader" hidden>
+          <input id="materialStructureInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,image/heic,image/heif" hidden>
+          <input id="materialReferenceInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,image/heic,image/heif" hidden>
+          <div class="product-upload-grid">
+            <button class="product-upload-card" id="materialStructureCard" type="button">
+              <span class="product-upload-number">01 · 结构母版</span>
+              <img id="materialStructurePreview" alt="主体结构图预览" hidden>
+              <span class="product-upload-placeholder" id="materialStructurePlaceholder">＋</span>
+              <strong>主体 / 结构图</strong>
+              <small id="materialStructureSummary">锁定主体、形体、视角、细节与背景</small>
+              <span class="product-upload-action">选择或更换图片</span>
+            </button>
+            <button class="product-upload-card" id="materialReferenceCard" type="button">
+              <span class="product-upload-number">02 · 材质样本</span>
+              <img id="materialReferencePreview" alt="材质参考图预览" hidden>
+              <span class="product-upload-placeholder" id="materialReferencePlaceholder">＋</span>
+              <strong>材质参考图</strong>
+              <small id="materialReferenceSummary">只提取颜色、纹理、光泽、反射与透光属性</small>
+              <span class="product-upload-action">选择或更换图片</span>
+            </button>
+          </div>
+          <p class="product-upload-tip">图片 1 决定“是什么和长什么形状”，图片 2 只决定“表面由什么材质构成”；输出比例自动跟随图片 1。</p>
+        </div>
+
+        <div class="edit-stage-shell" id="editStageShell" hidden>
+          <div class="stage-toolbar precise-only" hidden>
+            <div class="tool-group" id="annotationTools" role="toolbar" aria-label="标注工具">
+              <button class="tool-button active" type="button" data-tool="point" title="点">点</button>
+              <button class="tool-button" type="button" data-tool="box" title="框选">框</button>
+              <button class="tool-button" type="button" data-tool="arrow" title="箭头">箭头</button>
+              <button class="tool-button" type="button" data-tool="brush" title="画笔">画笔</button>
+              <button class="tool-button" type="button" data-tool="eraser" title="橡皮">橡皮</button>
+            </div>
+            <div class="tool-group">
+              <button class="tool-button" type="button" data-annotation-action="undo">撤销</button>
+              <button class="tool-button danger" type="button" data-annotation-action="clear">清空</button>
+            </div>
+          </div>
+
+          <div class="expand-stage expand-only" id="expandStage">
+            <div class="expand-frame" id="expandFrame">
+              <img id="expandImage" alt="待扩展原图" draggable="false">
+              <button class="expand-handle top" data-side="top" type="button" aria-label="向上扩展"></button>
+              <button class="expand-handle right" data-side="right" type="button" aria-label="向右扩展"></button>
+              <button class="expand-handle bottom" data-side="bottom" type="button" aria-label="向下扩展"></button>
+              <button class="expand-handle left" data-side="left" type="button" aria-label="向左扩展"></button>
+            </div>
+            <div class="stage-tip">拖动四边的紫色手柄设置扩展区域</div>
+          </div>
+
+          <div class="image-generation-stage image-generation-only" id="imageGenerationStage" hidden>
+            <div class="generation-prompt-card">
+              <div class="generation-card-kicker"><span>创意描述</span><em id="imageGenerationPromptCount">0 / 5000</em></div>
+              <textarea id="imageGenerationPrompt" maxlength="5000" rows="9" placeholder="描述你想生成的画面。例如：雨夜霓虹街道，一位穿银色风衣的女孩回头看向镜头，电影感光影，浅景深，细节丰富。可加入 @图片1 指定参考图用途。"></textarea>
+              <div class="generation-prompt-tips">
+                <span>写清主体、场景、风格、构图和光线，效果更稳定</span>
+                <button id="imageGenerationClearPrompt" type="button">清空描述</button>
+              </div>
+            </div>
+            <div class="generation-reference-panel">
+              <div class="generation-reference-heading">
+                <div><span>可选参考图</span><small>支持 0–10 张；点击缩略图把 @图片N 插入描述</small></div>
+                <button class="soft-button" id="imageGenerationAddReferenceButton" type="button">＋ 添加参考图</button>
+              </div>
+              <input id="imageGenerationReferenceInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,image/heic,image/heif" multiple hidden>
+              <div class="generation-reference-grid" id="imageGenerationReferenceGrid">
+                <div class="generation-reference-empty"><span>◇</span><strong>无需参考图也能直接生成</strong><small>添加人物、产品、风格或构图参考后，模型会结合文字理解</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="precise-stage precise-only" id="preciseStage" hidden>
+            <canvas id="annotationCanvas"></canvas>
+            <div class="stage-tip">紫色标记仅用于告诉模型修改位置，不会保留在结果中</div>
+          </div>
+
+          <div class="sticker-pack-stage sticker-pack-only" id="stickerPackStage" hidden>
+            <div class="sticker-source-frame">
+              <img id="stickerPackImage" alt="表情包人物或宠物原图">
+              <span class="sticker-source-badge">角色参考图</span>
+            </div>
+            <div class="stage-tip">照片只用于识别人物或宠物；一次生成完整宫格</div>
+          </div>
+
+          <div class="portrait-studio-stage portrait-studio-only" id="portraitStudioStage" hidden>
+            <div class="portrait-source-frame">
+              <img id="portraitStudioImage" alt="写真主参考图">
+              <span class="sticker-source-badge">01 · 身份主参考</span>
+            </div>
+            <div class="portrait-reference-rail" id="portraitReferenceRail" aria-label="写真参考图"></div>
+            <div class="portrait-photo-analysis" id="portraitPhotoAnalysis">正在分析照片…</div>
+            <div class="stage-tip">第一张锁定身份；其余照片只补充侧脸、发型与配饰</div>
+          </div>
+
+          <div class="stage-footer">
+            <button class="soft-button" id="replaceImageButton" type="button">更换原图</button>
+            <span id="markCount" class="precise-only" hidden>已标记 0 处</span>
+            <span class="stage-spacer"></span>
+            <button class="soft-button" id="resetEditButton" type="button">重置编辑</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="settings-card">
+        <div class="card-heading compact">
+          <div>
+            <span class="eyebrow">STEP 2 · 编辑设置</span>
+            <h2 id="settingsTitle">扩展参数</h2>
+          </div>
+        </div>
+
+        <div class="empty-settings" id="emptySettings">
+          <span>↑</span>
+          <p id="emptySettingsText">上传图片后即可设置参数</p>
+        </div>
+
+        <form id="editForm" hidden>
+          <div class="image-generation-only control-stack" hidden>
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="imageGenerationProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="imageGenerationModel"></select>
+              <small id="imageGenerationModelNote">147 图片 · 支持文生图与参考图生图</small>
+            </label>
+            <label class="field" id="imageGenerationQualityField">
+              <span>生成质量</span>
+              <select id="imageGenerationQuality">
+                <option value="medium">标准画质</option>
+                <option value="high">高清画质</option>
+              </select>
+            </label>
+            <div class="two-columns">
+              <label class="field">
+                <span>画面比例</span>
+                <select id="imageGenerationRatio"></select>
+              </label>
+              <label class="field">
+                <span>尺寸档位</span>
+                <select id="imageGenerationTier"></select>
+              </label>
+            </div>
+            <div class="two-columns">
+              <label class="field" id="imageGenerationOutputFormatField">
+                <span>输出格式</span>
+                <select id="imageGenerationOutputFormat"><option value="png">PNG</option><option value="jpeg">JPEG</option></select>
+              </label>
+              <label class="field" id="imageGenerationPromptOptimizationField">
+                <span>提示词优化 <small>Pro 专用</small></span>
+                <select id="imageGenerationPromptOptimization"><option value="standard">标准 · 质量更高</option><option value="fast">快速 · 等待更短</option></select>
+              </label>
+            </div>
+            <div class="size-readout generation-size-readout">
+              <span>实际输出尺寸</span>
+              <strong id="imageGenerationSize">—</strong>
+              <small id="imageGenerationSizeNote">按模型、比例与档位自动匹配</small>
+            </div>
+            <div class="product-preservation-note generation-mode-note">
+              <strong id="imageGenerationModeTitle">文字生成图片</strong>
+              <span id="imageGenerationModeHelp">不上传参考图时直接按描述生成；加入参考图后自动切换为多图参考生成。</span>
+            </div>
+          </div>
+
+          <div class="expand-only control-stack">
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="expandProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="expandModel"></select>
+            </label>
+            <div class="field">
+              <div class="field-line"><span>四边扩展</span><label class="inline-check"><input id="lockRatio" type="checkbox"><span>锁定原比例</span></label></div>
+              <div class="pad-grid">
+                <label><span>上</span><input id="padTop" type="number" min="0" max="300" step="1" value="25"><em>%</em></label>
+                <label><span>右</span><input id="padRight" type="number" min="0" max="300" step="1" value="25"><em>%</em></label>
+                <label><span>下</span><input id="padBottom" type="number" min="0" max="300" step="1" value="25"><em>%</em></label>
+                <label><span>左</span><input id="padLeft" type="number" min="0" max="300" step="1" value="25"><em>%</em></label>
+              </div>
+            </div>
+            <div class="size-readout">
+              <span>目标尺寸</span>
+              <strong id="expandSize">—</strong>
+              <small id="expandSizeError"></small>
+            </div>
+            <label class="field">
+              <span>生成质量</span>
+              <select id="expandQuality">
+                <option value="medium">标准画质</option>
+                <option value="high">高清画质</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>填充提示</span>
+              <textarea id="expandPrompt" rows="4" maxlength="1000" placeholder="可选，例如：自然延展海边风景，补充远处的云层"></textarea>
+            </label>
+          </div>
+
+          <div class="precise-only control-stack" hidden>
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="preciseProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="preciseModel"></select>
+              <small id="preciseModelNote">最多 10 张输入图</small>
+            </label>
+            <label class="field">
+              <span>输出尺寸</span>
+              <select id="preciseSize">
+                <optgroup label="1K">
+                  <option value="1024x1024">1:1 · 1024×1024</option>
+                  <option value="1152x864">4:3 · 1152×864</option>
+                  <option value="864x1152">3:4 · 864×1152</option>
+                  <option value="1424x800">16:9 · 1424×800</option>
+                  <option value="800x1424">9:16 · 800×1424</option>
+                  <option value="1248x832">3:2 · 1248×832</option>
+                  <option value="832x1248">2:3 · 832×1248</option>
+                  <option value="1568x672">21:9 · 1568×672</option>
+                </optgroup>
+                <optgroup label="2K">
+                  <option value="2048x2048" selected>1:1 · 2048×2048</option>
+                  <option value="2368x1776">4:3 · 2368×1776</option>
+                  <option value="1776x2368">3:4 · 1776×2368</option>
+                  <option value="2816x1584">16:9 · 2816×1584</option>
+                  <option value="1584x2816">9:16 · 1584×2816</option>
+                  <option value="2496x1664">3:2 · 2496×1664</option>
+                  <option value="1664x2496">2:3 · 1664×2496</option>
+                  <option value="3136x1344">21:9 · 3136×1344</option>
+                </optgroup>
+              </select>
+            </label>
+            <div class="two-columns">
+              <label class="field"><span>输出格式</span><select id="outputFormat"><option value="png">PNG</option><option value="jpeg">JPEG</option></select></label>
+              <label class="field" id="promptOptimizationField"><span>提示词优化 <small>Seedream 专用</small></span><select id="promptOptimization"><option value="standard">标准 · 质量更高</option><option value="fast">快速 · 等待更短</option></select></label>
+            </div>
+            <div class="field">
+              <span>额外参考图 <small>可选，最多 9 张</small></span>
+              <div class="reference-list" id="referenceList"></div>
+              <input id="referenceInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif,image/heic,image/heif" multiple hidden>
+              <button class="soft-button full-width" id="addReferenceButton" type="button">+ 添加参考图</button>
+            </div>
+            <label class="field">
+              <span>编辑要求</span>
+              <textarea id="precisePrompt" rows="5" maxlength="1200" placeholder="例如：把框选区域的沙发改成墨绿色天鹅绒，其他区域保持不变"></textarea>
+            </label>
+          </div>
+
+          <div class="product-background-only control-stack" hidden>
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="productBackgroundProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="productBackgroundModel"></select>
+              <small>需要支持两张输入图的图片编辑模型</small>
+            </label>
+            <label class="field">
+              <span>输出比例</span>
+              <select id="productBackgroundAspectSource">
+                <option value="product">跟随产品图</option>
+                <option value="background">跟随背景图</option>
+              </select>
+            </label>
+            <div class="size-readout">
+              <span>预计输出尺寸</span>
+              <strong id="productBackgroundSize">—</strong>
+              <small>自动匹配所选图片的画面比例</small>
+            </div>
+            <label class="field">
+              <span>补充要求 <small>可留空</small></span>
+              <textarea id="productBackgroundPrompt" rows="5" maxlength="1000" placeholder="例如：产品放在桌面中央，保留包装上的全部文字"></textarea>
+            </label>
+            <div class="product-preservation-note">
+              <strong>产品细节保护</strong>
+              <span>自动要求模型保留轮廓、部件、Logo、文字、配色、材质和纹理，并让投影与新环境自然融合。</span>
+            </div>
+          </div>
+
+          <div class="material-transfer-only control-stack" hidden>
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="materialTransferProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="materialTransferModel"></select>
+              <small>需要支持两张输入图的图片编辑模型</small>
+            </label>
+            <label class="field">
+              <span>迁移强度</span>
+              <select id="materialTransferStrength">
+                <option value="subtle">轻度 · 保留部分原色</option>
+                <option value="balanced" selected>标准 · 完整替换材质</option>
+                <option value="strong">强烈 · 强化材质特征</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>材质说明 <small>可留空自动识别</small></span>
+              <input id="materialTransferHint" type="text" maxlength="300" placeholder="例如：温润半透明白玉">
+            </label>
+            <label class="field">
+              <span>额外要求 <small>可留空</small></span>
+              <textarea id="materialTransferExtra" rows="4" maxlength="1000" placeholder="例如：只替换盔甲，皮肤不变"></textarea>
+            </label>
+            <div class="size-readout">
+              <span>预计输出尺寸</span>
+              <strong id="materialTransferSize">—</strong>
+              <small>自动跟随主体 / 结构图的画面比例</small>
+            </div>
+            <div class="product-preservation-note material-preservation-note">
+              <strong>结构锁定</strong>
+              <span>自动要求模型保留主体身份、几何形状、部件、细节、机位、构图、背景与光线，只迁移材质物理属性。</span>
+            </div>
+          </div>
+
+          <div class="sticker-pack-only sticker-settings control-stack" hidden>
+            <div class="sticker-provider-row">
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="stickerPackProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="stickerPackModel"></select>
+            </label>
+            </div>
+
+            <div class="sticker-settings-tabs" role="tablist" aria-label="表情包参数分组">
+              <button id="stickerTabGrid" type="button" role="tab" aria-selected="true" aria-controls="stickerPanelGrid" data-sticker-tab="grid">01 宫格设置</button>
+              <button id="stickerTabCaptions" type="button" role="tab" aria-selected="false" aria-controls="stickerPanelCaptions" tabindex="-1" data-sticker-tab="captions">02 表情文字</button>
+              <button id="stickerTabDetails" type="button" role="tab" aria-selected="false" aria-controls="stickerPanelDetails" tabindex="-1" data-sticker-tab="details">03 补充要求</button>
+            </div>
+
+            <div class="sticker-settings-body">
+            <section class="sticker-tab-panel" id="stickerPanelGrid" role="tabpanel" aria-labelledby="stickerTabGrid" data-sticker-panel="grid" tabindex="0">
+            <div class="two-columns">
+              <label class="field">
+                <span>表情数量</span>
+                <select id="stickerPackCount">
+                  <option value="6">6 张 · 3×2 宫格</option>
+                  <option value="9">9 张 · 3×3 宫格</option>
+                  <option value="12" selected>12 张 · 3×4 宫格</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>画面风格</span>
+                <select id="stickerPackStyle">
+                  <option value="cute">Q萌手绘贴纸</option>
+                  <option value="comic">活泼漫画贴纸</option>
+                  <option value="soft">软萌治愈贴纸</option>
+                </select>
+              </label>
+            </div>
+            <div class="size-readout">
+              <span>完整宫格 / 输出尺寸</span>
+              <strong id="stickerPackSize">3×4 · 1776 × 2368</strong>
+              <small>始终生成一张完整图片，不逐张重复调用接口</small>
+            </div>
+            <div class="product-preservation-note sticker-fast-note">
+              <strong>快速完整宫格</strong>
+              <span>一次请求生成完整宫格，不逐张调用接口，节省等待时间与费用。</span>
+            </div>
+            </section>
+
+            <section class="sticker-tab-panel" id="stickerPanelCaptions" role="tabpanel" aria-labelledby="stickerTabCaptions" data-sticker-panel="captions" tabindex="0" hidden>
+            <fieldset class="caption-mode-field">
+              <legend>文字方式</legend>
+              <div class="caption-mode-options">
+                <label>
+                  <input type="radio" name="stickerCaptionMode" value="custom" checked>
+                  <span><strong>自定义输入</strong><small>逐条填写每格文字</small></span>
+                </label>
+                <label>
+                  <input type="radio" name="stickerCaptionMode" value="random">
+                  <span><strong>AI 随机热梗</strong><small>看图匹配热梗并脑补文案</small></span>
+                </label>
+              </div>
+            </fieldset>
+            <div class="field" id="stickerCustomCaptionEditor">
+              <div class="field-line"><span>每格文字</span><small>可逐条修改，最多 12 个字</small></div>
+              <div class="sticker-caption-grid" id="stickerCaptionFields"></div>
+            </div>
+            <div class="sticker-random-note" id="stickerRandomCaptionNote" hidden>
+              <strong>AI 自动配梗</strong>
+              <span>生成时先理解照片中的人物或宠物、动作与场景，再混合常见网络热梗语气和看图脑补短句；每次结果会有变化。</span>
+            </div>
+            </section>
+
+            <section class="sticker-tab-panel" id="stickerPanelDetails" role="tabpanel" aria-labelledby="stickerTabDetails" data-sticker-panel="details" tabindex="0" hidden>
+            <label class="field">
+              <span>补充要求 <small>可留空</small></span>
+              <textarea id="stickerPackExtra" rows="3" maxlength="600" placeholder="例如：保持蓝色衣服，动作更活泼"></textarea>
+            </label>
+            <div class="product-preservation-note sticker-fast-note">
+              <strong>快速完整宫格</strong>
+              <span>一次请求生成 6、9 或 12 张完整宫格；随机热梗也在同一次请求中完成，不额外调用文案接口。中文由模型直接绘制，偶尔可能出现个别字不准确。</span>
+            </div>
+            </section>
+            </div>
+          </div>
+
+          <div class="portrait-studio-only portrait-settings control-stack" hidden>
+            <div class="portrait-provider-row">
+            <label class="field">
+              <span>图片渠道</span>
+              <select id="portraitProvider"></select>
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <select id="portraitModel"></select>
+            </label>
+            </div>
+
+            <div class="portrait-selection-summary"><span>当前风格</span><strong id="portraitSelectedStyle">清透自然光</strong><small>设置自动保留</small></div>
+            <div class="portrait-settings-tabs" role="tablist" aria-label="写真参数分组">
+              <button id="portraitTabStyle" type="button" role="tab" aria-selected="true" aria-controls="portraitPanelStyle" data-portrait-tab="style">01 风格与参考</button>
+              <button id="portraitTabExpression" type="button" role="tab" aria-selected="false" aria-controls="portraitPanelExpression" tabindex="-1" data-portrait-tab="expression">02 表情与细节</button>
+              <button id="portraitTabOutput" type="button" role="tab" aria-selected="false" aria-controls="portraitPanelOutput" tabindex="-1" data-portrait-tab="output">03 输出与保存</button>
+            </div>
+            <div class="portrait-settings-body">
+            <section class="portrait-tab-panel" id="portraitPanelStyle" role="tabpanel" aria-labelledby="portraitTabStyle" data-portrait-panel="style" tabindex="0">
+
+            <div class="portrait-section-block">
+              <div class="field-line"><span>补充参考图</span><small>可选，最多 3 张</small></div>
+              <input id="portraitReferenceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+              <button class="soft-button full-width" id="portraitAddReferenceButton" type="button">＋ 添加侧脸、发型或配饰参考</button>
+            </div>
+
+            <details class="portrait-recommendation-disclosure">
+              <summary><strong>帮我推荐风格</strong><span>回答三个小问题</span></summary>
+              <div class="portrait-question-grid">
+                <label class="field"><span>照片用途</span><select id="portraitUsage"><option value="profile">头像与个人主页</option><option value="social">社交分享</option><option value="memento">纪念收藏</option><option value="professional">职业形象</option><option value="experiment">视觉实验</option></select></label>
+                <label class="field"><span>希望气质</span><select id="portraitMood"><option value="natural">自然松弛</option><option value="fresh">清新明亮</option><option value="mature">成熟克制</option><option value="cinematic">电影叙事</option><option value="bold">鲜明大胆</option></select></label>
+                <label class="field"><span>风格强度</span><select id="portraitIntensity"><option value="light">轻微变化</option><option value="medium">平衡表达</option><option value="strong">强风格化</option></select></label>
+              </div>
+              <div class="portrait-recommendations" id="portraitRecommendations"></div>
+            </details>
+
+            <div class="portrait-section-block">
+              <div class="field-line"><span>全部 12 种写真风格</span><small>点击卡片选择</small></div>
+              <div class="portrait-style-grid" id="portraitStyleGrid"></div>
+            </div>
+            </section>
+
+            <section class="portrait-tab-panel" id="portraitPanelExpression" role="tabpanel" aria-labelledby="portraitTabExpression" data-portrait-panel="expression" tabindex="0" hidden>
+            <div class="portrait-section-block">
+              <div class="field-line"><span>人物表情</span><small>只改变表情与视线</small></div>
+              <div class="portrait-expression-grid" id="portraitExpressionGrid"></div>
+              <div class="portrait-segmented" id="portraitExpressionIntensity" role="group" aria-label="表情强度">
+                <button type="button" data-portrait-expression-intensity="subtle">轻微</button>
+                <button class="active" type="button" data-portrait-expression-intensity="balanced">平衡</button>
+                <button type="button" data-portrait-expression-intensity="expressive">鲜明</button>
+              </div>
+            </div>
+
+            <label class="field"><span>想额外加入什么？ <small>可留空</small></span><textarea id="portraitExtra" rows="3" maxlength="1000" placeholder="例如：保留我的红色外套，加入少量花瓣前景"></textarea></label>
+
+            <details class="portrait-advanced">
+              <summary>高级调整：场景、机位、服装、动作、光线</summary>
+              <p>留空时使用所选风格默认值，无法覆盖身份和安全约束。</p>
+              <label class="field"><span>场景</span><input id="portraitScene" maxlength="500"></label>
+              <label class="field"><span>机位与镜头</span><input id="portraitCamera" maxlength="500"></label>
+              <label class="field"><span>服装</span><input id="portraitWardrobe" maxlength="500"></label>
+              <label class="field"><span>动作</span><input id="portraitAction" maxlength="500"></label>
+              <label class="field"><span>光线</span><input id="portraitLighting" maxlength="500"></label>
+            </details>
+            </section>
+
+            <section class="portrait-tab-panel" id="portraitPanelOutput" role="tabpanel" aria-labelledby="portraitTabOutput" data-portrait-panel="output" tabindex="0" hidden>
+            <div class="two-columns">
+              <label class="field"><span>画面比例</span><select id="portraitRatio"><option value="2:3">竖幅 · 2:3</option><option value="1:1">方形 · 1:1</option><option value="3:2">横幅 · 3:2</option></select></label>
+              <label class="field"><span>输出分辨率</span><select id="portraitResolution"><option value="1K">1K · 快速预览</option><option value="2K">2K · 高清成片</option></select></label>
+            </div>
+            <label class="field" id="portraitQualityField"><span>147 生成质量</span><select id="portraitQuality"><option value="low">快速草稿</option><option value="medium" selected>标准质量</option><option value="high">高质量</option></select><small>火山渠道主要由模型与输出分辨率控制质量。</small></label>
+            <div class="portrait-consent">
+              <strong>肖像与成年人确认</strong>
+              <label class="inline-check"><input id="portraitAdultConsent" type="checkbox"><span>我确认照片中的人物均为成年人</span></label>
+              <label class="inline-check"><input id="portraitRightsConsent" type="checkbox"><span>这是本人照片，或我已获得明确的肖像使用授权</span></label>
+            </div>
+            <label class="portrait-history-choice"><input id="portraitSaveSource" type="checkbox"><span><strong>保存第一张参考图到本地历史</strong><small>默认关闭；关闭后刷新页面将无法恢复原图对比。补充参考图始终不会保存。</small></span></label>
+            <div class="product-preservation-note portrait-safety-note"><strong>身份保护</strong><span>服务端会重新编译提示词，锁定脸型、五官、年龄感与发型锚点；艺术风格只改变表面表现。</span></div>
+            </section>
+            </div>
+          </div>
+
+          <div class="billing-note">生成会消耗你所配置上游账户的额度；本工具不收取额外积分。</div>
+          <button class="generate-button" id="generateButton" type="submit"><span>生成图片</span><small>提交后请勿重复点击</small></button>
+        </form>
+
+        <div class="job-panel" id="jobPanel" hidden>
+          <div class="job-head"><span class="spinner"></span><strong id="jobStage">准备生成</strong><em id="jobProgressText">0%</em></div>
+          <div class="progress-track"><span id="jobProgress"></span></div>
+          <p id="jobMessage">任务将由本机安全代理提交。</p>
+        </div>
+      </aside>
+    </main>
+
+    <section class="result-card" id="resultCard" hidden>
+      <div class="result-heading">
+        <div><span class="eyebrow">STEP 4 · 对比下载</span><h2>编辑完成</h2><p id="resultMeta"></p></div>
+        <div class="result-actions">
+          <button class="soft-button fullscreen-compare-button" id="fullscreenCompareButton" type="button"><span aria-hidden="true">⛶</span><span id="fullscreenCompareButtonLabel">全屏对比</span></button>
+          <button class="soft-button" id="portraitExpandSeriesButton" type="button" hidden>扩展为四张系列</button>
+          <button class="soft-button" id="downloadOriginalButton" type="button">下载原图</button>
+          <a class="primary-small link-button" id="downloadResultButton" href="#" download>下载结果</a>
+        </div>
+      </div>
+      <div class="compare-layout">
+        <div class="compare-stage" id="compareStage">
+          <img id="resultImage" class="compare-image result" alt="编辑结果">
+          <div class="compare-original-clip" id="compareOriginalClip"><img id="originalImage" class="compare-image original" alt="原图"></div>
+          <div class="compare-divider" id="compareDivider"><span></span></div>
+          <span class="compare-label before" id="compareBeforeLabel">原图</span><span class="compare-label after">结果</span>
+          <input id="compareSlider" type="range" min="0" max="100" value="50" aria-label="前后对比滑杆">
+        </div>
+        <aside class="result-summary">
+          <div><span>处理方式</span><strong id="resultMode">—</strong></div>
+          <div><span>模型</span><strong id="resultModel">—</strong></div>
+          <div><span>输出尺寸</span><strong id="resultSize">—</strong></div>
+          <div><span>本地文件</span><strong id="resultFile">—</strong></div>
+          <button class="soft-button full-width" id="newEditButton" type="button">继续编辑这张原图</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="portrait-series-card" id="portraitSeriesCard" hidden>
+      <div class="result-heading">
+        <div><span class="eyebrow">写真系列</span><h2>同一身份 · 四种镜头</h2><p id="portraitSeriesMeta">预览满意后，只需再生成其余三张。</p></div>
+        <button class="soft-button" id="portraitDownloadAllButton" type="button">下载全部成片</button>
+      </div>
+      <div class="portrait-series-grid" id="portraitSeriesGrid"></div>
+    </section>
+
+    <footer class="app-footer"><span>GuGu AI Visual Studio v3.0.0 · 局域网团队数据集中保存在服务器</span><span>访问地址 <code id="localAddress"></code></span></footer>
+  </div>
+
+  <div class="fullscreen-compare" id="fullscreenCompare" hidden>
+    <section class="fullscreen-compare-shell" role="dialog" aria-modal="true" aria-labelledby="fullscreenCompareTitle">
+      <header class="fullscreen-compare-header">
+        <div>
+          <span class="eyebrow">全屏细节查看</span>
+          <h2 id="fullscreenCompareTitle">原图与结果对比</h2>
+          <p id="fullscreenCompareMeta">拖动分界线查看细节</p>
+        </div>
+        <button class="fullscreen-close" type="button" data-fullscreen-close aria-label="关闭全屏对比">×</button>
+      </header>
+      <div class="fullscreen-compare-stage" id="fullscreenCompareStage">
+        <img id="fullscreenResultImage" class="compare-image result" alt="全屏编辑结果">
+        <div class="compare-original-clip" id="fullscreenOriginalClip"><img id="fullscreenOriginalImage" class="compare-image original" alt="全屏原图"></div>
+        <div class="compare-divider" id="fullscreenCompareDivider"><span></span></div>
+        <span class="compare-label before" id="fullscreenBeforeLabel">原图</span><span class="compare-label after">结果</span>
+        <input id="fullscreenCompareSlider" type="range" min="0" max="100" value="50" aria-label="全屏前后对比滑杆">
+      </div>
+      <footer class="fullscreen-compare-footer">
+        <span id="fullscreenCompareFooterHint">左右拖动分界线查看原图与结果；按 Esc 可随时关闭</span>
+        <button class="soft-button" type="button" data-fullscreen-close>关闭全屏对比</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="settingsModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+      <header><div><span class="eyebrow">本机安全配置</span><h2 id="settingsModalTitle">图片接口设置</h2></div><button class="icon-button" type="button" data-modal-close aria-label="关闭">×</button></header>
+      <p class="modal-intro">API Key 只保存到本机 <code>config/settings.json</code>，刷新页面时只返回脱敏状态，不会下发完整密钥。</p>
+      <form id="settingsForm">
+        <div class="provider-card">
+          <div class="provider-title"><div><strong>147 图片</strong><small>支持图片编辑、表情包与人像创作工作室</small></div><span id="defaultProviderState"></span></div>
+          <label class="field"><span>Base URL</span><input id="defaultBaseUrl" type="url" required></label>
+          <label class="field"><span>API Key</span><input id="defaultApiKey" type="password" autocomplete="new-password" placeholder="留空则保留原密钥"></label>
+          <label class="field"><span>默认模型</span><select id="defaultModel"><option value="gpt-image-2.5-flare">GPT Image 2.5 Flare</option><option value="gpt-image-2.5-sunburst">GPT Image 2.5 Sunburst</option></select></label>
+        </div>
+        <div class="provider-card">
+          <div class="provider-title"><div><strong>火山 Seedream</strong><small>支持图片编辑、表情包与人像创作工作室</small></div><span id="volcProviderState"></span></div>
+          <label class="field"><span>Base URL</span><input id="volcBaseUrl" type="url" required></label>
+          <label class="field"><span>Ark API Key</span><input id="volcApiKey" type="password" autocomplete="new-password" placeholder="留空则保留原密钥"></label>
+          <label class="field"><span>默认模型</span><select id="volcModel"></select></label>
+          <label class="inline-check"><input id="volcWatermark" type="checkbox"><span>添加“AI 生成”水印</span></label>
+          <small>请求固定使用 URL 返回与非流式模式（response_format=url、stream=false）。</small>
+        </div>
+        <div class="modal-actions"><button class="soft-button" type="button" data-modal-close>取消</button><button class="primary-button" type="submit">保存设置</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="drawer-backdrop" id="historyDrawer" hidden>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+      <header><div><span class="eyebrow">本机记录</span><h2 id="historyTitle">生成历史</h2></div><button class="icon-button" type="button" data-history-close aria-label="关闭">×</button></header>
+      <div class="history-toolbar" id="historyToolbar" hidden>
+        <label class="history-select-all"><input id="historySelectAll" type="checkbox"><span>全选</span></label>
+        <span class="history-selected-count" id="historySelectedCount">已选 0 项</span>
+        <button class="danger-button" id="historyDeleteButton" type="button" disabled>删除所选</button>
+      </div>
+      <div class="history-list" id="historyList"><p class="muted">正在读取历史…</p></div>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="accountModal" hidden>
+    <section class="modal team-account-modal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <header><div><span class="eyebrow">TEAM ACCOUNT</span><h2 id="accountTitle">个人中心</h2></div><button class="icon-button" type="button" data-account-close aria-label="关闭">×</button></header>
+      <div class="team-account-summary">
+        <div><span>账号</span><strong id="accountUsername">—</strong></div>
+        <div><span>总积分</span><strong id="accountBalance">0</strong></div>
+        <div><span>冻结积分</span><strong id="accountReserved">0</strong></div>
+        <div><span>可用积分</span><strong id="accountAvailable">0</strong></div>
+      </div>
+      <div class="team-data-tabs"><button class="active" type="button" data-account-tab="transactions">积分流水</button><button type="button" data-account-tab="usage">调用记录</button></div>
+      <div class="team-record-list" id="accountRecordList"></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop team-admin-backdrop" id="adminModal" hidden>
+    <section class="modal team-admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <header><div><span class="eyebrow">TEAM ADMINISTRATION</span><h2 id="adminTitle">管理后台</h2></div><button class="icon-button" type="button" data-admin-close aria-label="关闭">×</button></header>
+      <div class="team-admin-overview" id="adminOverview"></div>
+      <div class="team-admin-layout">
+        <aside class="team-admin-users">
+          <div class="team-admin-section-head"><strong>用户</strong><button class="soft-button" id="adminRefreshButton" type="button">刷新</button></div>
+          <div id="adminUserList"></div>
+        </aside>
+        <main class="team-admin-detail">
+          <section id="adminUserDetail"><p class="muted">选择一个用户进行管理。</p></section>
+          <div class="team-data-tabs" id="adminDataTabs" hidden><button class="active" type="button" data-admin-tab="transactions">积分流水</button><button type="button" data-admin-tab="usage">调用记录</button><button type="button" data-admin-tab="jobs">生成任务</button><button type="button" data-admin-tab="content">内容与空间</button></div>
+          <div class="team-record-list" id="adminRecordList"></div>
+        </main>
+      </div>
+      <details class="team-admin-settings">
+        <summary>团队设置与计费</summary>
+        <form id="teamSettingsForm">
+          <label class="inline-check"><input id="registrationEnabled" type="checkbox"><span>允许同事自行注册（新账号仍需审核）</span></label>
+          <div class="team-cost-grid" id="teamCostGrid"></div>
+          <button class="primary-small" type="submit">保存团队设置</button>
+        </form>
+      </details>
+      <details class="team-admin-settings">
+        <summary>管理员操作审计</summary>
+        <div class="team-record-list" id="adminAuditList"></div>
+      </details>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+</body>
+</html>

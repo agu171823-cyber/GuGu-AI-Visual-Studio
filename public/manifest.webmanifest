@@ -1,0 +1,20 @@
+{
+  "name": "GuGu AI Visual Studio",
+  "short_name": "GuGu AI Studio",
+  "description": "局域网团队图片生成与编辑、3D 模型取景、Q 版表情包及人像创作工作室",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080a13",
+  "theme_color": "#090b16",
+  "lang": "zh-CN",
+  "categories": ["graphics", "photo", "productivity"],
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

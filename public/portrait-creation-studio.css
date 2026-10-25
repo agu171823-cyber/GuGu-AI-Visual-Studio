@@ -1,0 +1,40 @@
+.portrait-creation-hub{width:min(1480px,calc(100% - 48px));max-width:none;margin:24px auto 18px;padding:26px 32px;border:1px solid #303955;border-radius:24px;background:linear-gradient(125deg,#181c32,#111729 70%);color:#edf0ff;box-shadow:0 16px 42px #06081635}
+.portrait-creation-hub[hidden]{display:none}
+.portrait-creation-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.portrait-creation-heading h1{margin:6px 0;font-size:clamp(28px,3vw,42px);line-height:1.15;color:#f7f5ff}
+.portrait-creation-heading p{margin:0;color:#b5bfd9}
+.portrait-creation-local{border:1px solid #425276;border-radius:999px;padding:8px 13px;color:#b9daca;font-size:12px;white-space:nowrap}
+.portrait-purpose-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+.portrait-purpose-nav button{min-height:84px;padding:15px 18px;text-align:left;border:1px solid #37415f;border-radius:16px;background:#202842;color:#eef0fc;cursor:pointer}
+.portrait-purpose-nav button:hover,.portrait-purpose-nav button:focus-visible{border-color:#a48aff;outline:none}
+.portrait-purpose-nav button[aria-pressed="true"]{border-color:#b497ff;background:#352b59;box-shadow:inset 0 0 0 1px #b497ff}
+.portrait-purpose-nav strong,.portrait-purpose-nav small{display:block}
+.portrait-purpose-nav strong{font-size:17px}.portrait-purpose-nav small{margin-top:5px;color:#b8bfd7;font-size:12px}
+.portrait-person-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:18px;padding:14px 16px;border:1px solid #303a59;border-radius:15px;background:#171d33}
+.portrait-person-row[hidden]{display:none}
+.portrait-person-row label{display:flex;flex-direction:column;gap:3px;min-width:220px;margin-right:auto}
+.portrait-person-row label small{color:#aeb9d2}
+.portrait-person-row select{min-width:225px;max-width:350px;padding:10px 14px;border:1px solid #515e7e;border-radius:10px;background:#10162b;color:#f0f2ff}
+.portrait-person-row button{white-space:nowrap}
+.portrait-person-row button[hidden]{display:none}
+.portrait-creation-library{margin-top:12px;border:1px solid #303a59;border-radius:14px;background:#171d33}
+.portrait-creation-library[hidden]{display:none}
+.portrait-creation-library summary{padding:13px 16px;cursor:pointer;font-weight:700;color:#e5e4ff}
+.portrait-creation-library summary span{font-weight:400;color:#aeb9d2}
+.portrait-creation-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;padding:0 16px 16px}
+.portrait-creation-library-grid p{color:#afbad5}
+.portrait-creation-library-grid a{display:block;overflow:hidden;border:1px solid #3b4562;border-radius:12px;background:#202842;color:#e5e9ff;text-decoration:none}
+.portrait-creation-library-grid img{display:block;width:100%;height:190px;object-fit:contain;background:#0d1223}
+.portrait-creation-library-grid a span{display:block;padding:9px 10px;font-size:12px;line-height:1.4}
+.portrait-creation-library-item{border:1px solid #3b4562;border-radius:12px;overflow:hidden;background:#202842}
+.portrait-creation-library-item>a:first-child{border:0;border-radius:0}
+.portrait-creation-library-grid .portrait-creation-library-download{display:block;padding:8px 10px;border:0;border-top:1px solid #3b4562;border-radius:0;color:#c9b4ff;font-size:12px}
+.portrait-creation-active .portrait-workspace,
+.portrait-creation-active #resultCard,
+.portrait-creation-active #portraitSeriesCard,
+.portrait-creation-active #characterStudioWorkspace,
+.portrait-creation-active .app-footer{width:min(1480px,calc(100% - 48px));max-width:none;margin-left:auto;margin-right:auto}
+.portrait-creation-active .portrait-workspace{padding:0 0 24px}
+.portrait-creation-active #resultCard,.portrait-creation-active #portraitSeriesCard{box-sizing:border-box}
+.portrait-creation-active .app-footer{padding-left:0;padding-right:0}
+@media(max-width:760px){.portrait-creation-hub,.portrait-creation-active .portrait-workspace,.portrait-creation-active #resultCard,.portrait-creation-active #portraitSeriesCard,.portrait-creation-active #characterStudioWorkspace,.portrait-creation-active .app-footer{width:calc(100% - 24px)}.portrait-creation-hub{margin:12px auto;padding:18px}.portrait-creation-heading{align-items:flex-start}.portrait-creation-local{display:none}.portrait-purpose-nav{gap:7px}.portrait-purpose-nav button{padding:10px;min-height:78px}.portrait-purpose-nav strong{font-size:14px}.portrait-purpose-nav small{font-size:11px}.portrait-person-row label{width:100%}.portrait-person-row select{min-width:0;width:100%;max-width:none}.portrait-creation-active .portrait-workspace{padding:0 0 14px}}
